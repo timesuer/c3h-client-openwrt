@@ -8,17 +8,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install toolchain and dependencies
+      - name: Install toolchain
         run: |
-          sudo dpkg --add-architecture armhf
-          sudo apt update || true
-          sudo apt install -y gcc-arm-linux-gnueabihf libpcap-dev:armhf
+          sudo apt update
+          sudo apt install -y gcc-arm-linux-gnueabihf flex bison wget
 
-      - name: Build
+      - name: Build libpcap from source for armv7
+        run: |
+          cd /tmp
+          wget https://www.tcpdump.org/release/libpcap-1.10.4.tar.gz
+          tar -xzf libpcap-1.10.4.tar.gz
+          cd libpcap-1.10.4
+          ./configure --host=arm-linux-gnueabihf \
+            CC=arm-linux-gnueabihf-gcc \
+            --disable-dbus \
+            --disable-rdma \
+            --disable-shared \
+            --without-libnl
+          make -j$(nproc)
+
+      - name: Build c3h-client
         run: |
           cd src
-          arm-linux-gnueabihf-gcc -o c3h-client main.c auth.c adapter.c md5.c \
-            -lpcap -L/usr/lib/arm-linux-gnueabihf
+          arm-linux-gnueabihf-gcc -o c3h-client \
+            main.c auth.c adapter.c md5.c \
+            -I/tmp/libpcap-1.10.4 \
+            /tmp/libpcap-1.10.4/libpcap.a \
+            -static
+
+      - name: Verify binary
+        run: |
+          file src/c3h-client
+          ls -lh src/c3h-client
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
