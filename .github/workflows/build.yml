@@ -11,7 +11,7 @@ jobs:
       - name: Install toolchain and dependencies
         run: |
           sudo dpkg --add-architecture armhf
-          sudo apt update
+          sudo apt update || true
           sudo apt install -y gcc-arm-linux-gnueabihf libpcap-dev:armhf
 
       - name: Build
