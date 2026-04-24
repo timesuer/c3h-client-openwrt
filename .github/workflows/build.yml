@@ -24,25 +24,27 @@ jobs:
             --disable-dbus \
             --disable-rdma \
             --disable-shared \
+            --enable-static \
             --without-libnl
           make -j$(nproc)
+          ls -la libpcap.a
 
-      - name: Build c3h-client
+      - name: Build c3h-client (static)
         run: |
           cd src
-          arm-linux-gnueabihf-gcc -o c3h-client \
+          arm-linux-gnueabihf-gcc -static -o c3h-client \
             main.c auth.c adapter.c md5.c \
             -I/tmp/libpcap-1.10.4 \
-            /tmp/libpcap-1.10.4/libpcap.a \
-            -static
+            /tmp/libpcap-1.10.4/libpcap.a
 
       - name: Verify binary
         run: |
           file src/c3h-client
+          arm-linux-gnueabihf-readelf -d src/c3h-client || echo "No dynamic section (good, static)"
           ls -lh src/c3h-client
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: c3h-client-armv7
+          name: c3h-client-armv7-static
           path: src/c3h-client
