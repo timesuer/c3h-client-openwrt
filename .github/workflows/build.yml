@@ -27,7 +27,7 @@ jobs:
             -lpcap -L/usr/lib/arm-linux-gnueabihf
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: c3h-client-armv7-musl
           path: src/c3h-client
