@@ -8,26 +8,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install musl cross toolchain
-        run: |
-          wget -q https://musl.cc/arm-linux-musleabihf-cross.tgz
-          tar -xzf arm-linux-musleabihf-cross.tgz
-          echo "$PWD/arm-linux-musleabihf-cross/bin" >> $GITHUB_PATH
-
-      - name: Install libpcap armhf
+      - name: Install toolchain and dependencies
         run: |
           sudo dpkg --add-architecture armhf
           sudo apt update
-          sudo apt install -y libpcap-dev:armhf
+          sudo apt install -y gcc-arm-linux-gnueabihf libpcap-dev:armhf
 
       - name: Build
         run: |
           cd src
-          arm-linux-musleabihf-gcc -o c3h-client main.c auth.c adapter.c md5.c \
+          arm-linux-gnueabihf-gcc -o c3h-client main.c auth.c adapter.c md5.c \
             -lpcap -L/usr/lib/arm-linux-gnueabihf
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: c3h-client-armv7-musl
+          name: c3h-client-armv7
           path: src/c3h-client
