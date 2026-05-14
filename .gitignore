@@ -37,3 +37,8 @@
 /.settings/
 /.cproject
 /.project
+
+# Build artifacts and external toolchains
+c3h-client
+/toolchain/
+*.log
