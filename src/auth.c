@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Filename:     auth.c
  *
  * Created by:	 liuqun
@@ -107,6 +107,7 @@ void InitDevice(const char *DeviceName)
 		exit(-1);
 	}
 	deviceName = DeviceName;
+	SetDeviceName(DeviceName);
 	/* 查询本机MAC地址 */
 	GetMacFromDevice(local_mac, deviceName);
 }

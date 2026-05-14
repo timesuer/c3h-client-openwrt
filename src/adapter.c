@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Filename:     adapter.c
  *
  * Created by:	 liuqun
@@ -35,6 +35,19 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
+
+/* 保存当前使用的网卡名称 */
+static const char *currentDeviceName = NULL;
+
+const char *GetDeviceName()
+{
+	return currentDeviceName;
+}
+
+void SetDeviceName(const char *name)
+{
+	currentDeviceName = name;
+}
 
 int GetIpFromDevice(uint8_t ip[4], const char *deviceName)
 {
@@ -201,6 +214,14 @@ int RefreshIPAddress()
 
 	return system("ipconfig /renew");
 #else
-	return system("./c3h-refresh");
+	char cmd[128];
+	const char *dev = GetDeviceName();
+	if (dev == NULL) {
+		dev = "eth0";
+	}
+	/* 使用udhcpc获取IP地址，-i指定网卡，-n表示不阻塞（获取不到就退出），-q获取后退出 */
+	snprintf(cmd, sizeof(cmd), "udhcpc -i %s -n -q", dev);
+	PRINTMSG("C3H Client: Running DHCP: %s\n", cmd);
+	return system(cmd);
 #endif
 }
